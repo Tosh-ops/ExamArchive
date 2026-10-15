@@ -1,0 +1,101 @@
+{% extends 'Tests/base.html' %}
+
+{% block content %}
+
+<div style="margin-bottom: 20px;">
+  <p class="text-muted" style="font-size:13px;">Welcome back</p>
+  <h1 style="font-size:22px; font-weight:700; margin-top:2px;">Hi, {{ user_name|default:"Student" }} 👋</h1>
+</div>
+
+<form method="get" action="{% url 'search' %}" class="search-bar">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+  </svg>
+  <input type="text" name="q" placeholder="Search unit code, course, or year">
+</form>
+
+<div class="chips">
+  <a href="{% url 'search' %}" class="chip active">All</a>
+  <a href="{% url 'search' %}?q=CS" class="chip">CS</a>
+  <a href="{% url 'search' %}?q=Engineering" class="chip">Engineering</a>
+  <a href="{% url 'search' %}?q=Business" class="chip">Business</a>
+  <a href="{% url 'search' %}?q=Math" class="chip">Math</a>
+</div>
+
+<div class="section-title">
+  <span>Trending papers</span>
+  <a href="{% url 'search' %}" class="link">
+    See all
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;">
+      <path d="M9 18l6-6-6-6"/>
+    </svg>
+  </a>
+</div>
+
+{% for paper in trending %}
+  <a href="{% url 'paper_detail' paper.id %}" class="card">
+    <div class="card-left">
+      <span class="unit-chip">{{ paper.unit_code }}</span>
+      <div class="card-title">{{ paper.title }}</div>
+      <div class="card-meta">
+        <span>{{ paper.year }}</span>
+        <span style="color:var(--ink-faint);">·</span>
+        <span>{{ paper.get_exam_type_display }}</span>
+      </div>
+    </div>
+    <div class="card-stat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <path d="M7 10l5 5 5-5"/>
+        <path d="M12 15V3"/>
+      </svg>
+      {{ paper.downloads }}
+    </div>
+  </a>
+{% empty %}
+  <div class="empty-state">
+    <div class="icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+    </div>
+    <h3>No papers yet</h3>
+    <p>Be the first to contribute to the archive.</p>
+    <a href="{% url 'upload' %}" class="btn" style="max-width: 220px; margin: 0 auto;">Upload a paper</a>
+  </div>
+{% endfor %}
+
+<div class="section-title">
+  <span>Recently added</span>
+</div>
+
+{% for paper in recent %}
+  <a href="{% url 'paper_detail' paper.id %}" class="card">
+    <div class="card-left">
+      <span class="unit-chip">{{ paper.unit_code }}</span>
+      <div class="card-title">{{ paper.title }}</div>
+      <div class="card-meta">
+        <span>{{ paper.year }}</span>
+        <span style="color:var(--ink-faint);">·</span>
+        {% if paper.verified %}
+          <span style="color:var(--success);">✓ Verified</span>
+        {% else %}
+          <span style="color:var(--warning);">Pending</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card-stat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <path d="M7 10l5 5 5-5"/>
+        <path d="M12 15V3"/>
+      </svg>
+      {{ paper.downloads }}
+    </div>
+  </a>
+{% empty %}
+  <p class="text-muted" style="font-size: 13px; text-align:center; padding: 20px;">Nothing recent.</p>
+{% endfor %}
+
+{% endblock %}

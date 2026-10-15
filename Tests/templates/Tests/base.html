@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#1565C0">
+  <title>Exam Archive</title>
+
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.style.colorScheme = (t === 'dark') ? 'dark' : 'light';
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'Tests/css/style.css' %}">
+
+  <style>
+    html.theme-switching * {
+      transition: none !important;
+      animation: none !important;
+    }
+    /* Notification badge dot */
+    .icon-btn.has-badge { position: relative; }
+    .icon-btn .badge-dot {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: #DC2626;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--surface);
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+  {% block navbar %}
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="{% url 'home' %}" class="logo">
+        <div class="logo-mark">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="28" height="28" rx="8" fill="#1565C0"/>
+            <path d="M9 8h10M9 13h10M9 18h6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span class="logo-text">Exam Archive</span>
+      </a>
+      <div class="nav-icons">
+        <button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle theme" onclick="toggleTheme()">
+          <svg id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+        </button>
+
+        <a href="{% url 'notifications' %}" class="icon-btn {% if unread_count and unread_count > 0 %}has-badge{% endif %}" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+          </svg>
+          {% if unread_count and unread_count > 0 %}
+            <span class="badge-dot">{{ unread_count }}</span>
+          {% endif %}
+        </a>
+        <a href="{% url 'profile' %}" class="avatar" aria-label="Profile">
+          {{ user_initials|default:"G" }}
+        </a>
+      </div>
+    </div>
+  </nav>
+  {% endblock %}
+
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+
+  {% block bottomnav %}
+  <nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <a href="{% url 'home' %}" class="nav-item {% if active == 'home' %}active{% endif %}">
+        <span class="ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2z"/>
+          </svg>
+        </span>
+        <span>Home</span>
+      </a>
+      <a href="{% url 'search' %}" class="nav-item {% if active == 'search' %}active{% endif %}">
+        <span class="ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m21 21-4.3-4.3"/>
+          </svg>
+        </span>
+        <span>Search</span>
+      </a>
+      <a href="{% url 'upload' %}" class="nav-item {% if active == 'upload' %}active{% endif %}">
+        <span class="ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <path d="M17 8l-5-5-5 5"/>
+            <path d="M12 3v12"/>
+          </svg>
+        </span>
+        <span>Upload</span>
+      </a>
+      <a href="{% url 'badges' %}" class="nav-item {% if active == 'badges' %}active{% endif %}">
+        <span class="ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="6"/>
+            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        </span>
+        <span>Badges</span>
+      </a>
+      <a href="{% url 'profile' %}" class="nav-item {% if active == 'profile' %}active{% endif %}">
+        <span class="ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </span>
+        <span>Profile</span>
+      </a>
+    </div>
+  </nav>
+  {% endblock %}
+
+  <div class="toast" id="toast"></div>
+
+  <script src="{% static 'Tests/js/app.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

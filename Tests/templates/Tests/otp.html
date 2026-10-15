@@ -1,0 +1,33 @@
+{% extends 'Tests/base.html' %}
+{% block navbar %}{% endblock %}
+{% block bottomnav %}{% endblock %}
+
+{% block content %}
+<div class="text-center" style="padding-top: 40px;">
+  <a href="{% url 'login' %}" style="position: absolute; left: 20px; top: 20px; font-size: 22px; text-decoration: none; color: #1A1A1A;">←</a>
+
+  <div class="big-icon">🔐</div>
+  <h2 style="font-size: 22px; margin-top: 16px;">Verify your number</h2>
+  <p class="text-muted" style="font-size: 13px; margin-top: 8px;">
+    Enter the 6-digit code sent to<br><b>+254 712 345 678</b>
+  </p>
+
+  <form method="post" action="{% url 'home' %}" style="margin-top: 30px;">
+    {% csrf_token %}
+    <div style="display:flex; gap: 8px; justify-content:center; margin-bottom: 24px;">
+      <input maxlength="1" style="width:42px; height:52px; text-align:center; font-size:18px; border:1px solid #E5E7EB; border-radius:10px;">
+      <input maxlength="1" style="width:42px; height:52px; text-align:center; font-size:18px; border:1px solid #E5E7EB; border-radius:10px;">
+      <input maxlength="1" style="width:42px; height:52px; text-align:center; font-size:18px; border:1px solid #E5E7EB; border-radius:10px;">
+      <input maxlength="1" style="width:42px; height:52px; text-align:center; font-size:18px; border:1px solid #E5E7EB; border-radius:10px;">
+      <input maxlength="1" style="width:42px; height:52px; text-align:center; font-size:18px; border:1px solid #E5E7EB; border-radius:10px;">
+      <input maxlength="1" style="width:42px; height:52px; text-align:center; font-size:18px; border:1px solid #E5E7EB; border-radius:10px;">
+    </div>
+    <p class="text-muted" style="font-size:12px; margin-bottom: 20px;">Resend code in 0:45</p>
+    <button type="submit" class="btn">Verify</button>
+  </form>
+
+  <p style="color:#1565C0; font-size: 13px; font-weight: 600; margin-top: 14px;">
+    <a href="{% url 'login' %}" style="color: inherit; text-decoration: none;">Change number</a>
+  </p>
+</div>
+{% endblock %}

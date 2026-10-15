@@ -1,0 +1,216 @@
+{% extends 'Tests/base.html' %}
+{% block bottomnav %}{% endblock %}
+
+{% block content %}
+<h1 style="font-size: 20px; margin: 8px 0 16px;">Moderation console</h1>
+
+{# ---------- Stats row ---------- #}
+<div class="stats-row">
+  <div class="stat-block"><div class="num">{{ flagged_count }}</div><div class="lbl">Flagged</div></div>
+  <div class="stat-block"><div class="num">{{ pending_count }}</div><div class="lbl">Pending</div></div>
+  <div class="stat-block"><div class="num">{{ verified_count }}</div><div class="lbl">Verified</div></div>
+</div>
+
+{# ---------- Tabs ---------- #}
+<div class="mod-tabs" role="tablist">
+  <button class="mod-tab active" data-tab="flagged" role="tab">
+    Flagged
+    {% if flagged_count > 0 %}<span class="mod-badge danger">{{ flagged_count }}</span>{% endif %}
+  </button>
+  <button class="mod-tab" data-tab="pending" role="tab">
+    Pending
+    {% if pending_count > 0 %}<span class="mod-badge warn">{{ pending_count }}</span>{% endif %}
+  </button>
+  <button class="mod-tab" data-tab="reports" role="tab">
+    Reports
+    {% if report_count > 0 %}<span class="mod-badge">{{ report_count }}</span>{% endif %}
+  </button>
+  <button class="mod-tab" data-tab="verified" role="tab">
+    Verified
+    {% if verified_count > 0 %}<span class="mod-badge muted">{{ verified_count }}</span>{% endif %}
+  </button>
+</div>
+
+{# ---------- FLAGGED ---------- #}
+<div class="mod-panel active" id="panel-flagged" role="tabpanel">
+  <p class="text-muted" style="font-size:12px; margin-bottom:12px;">
+    Papers with {{ report_threshold }}+ reports. Review the file, then keep or remove.
+  </p>
+
+  {% for paper in flagged %}
+    <div class="card" style="display: block; border-color:#FECACA;">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <span class="unit-chip">{{ paper.unit_code }}</span>
+        <span class="tag" style="background:var(--danger-bg); border-color:#FECACA; color:var(--danger);">
+          ⚠️ {{ paper.report_count }} reports
+        </span>
+      </div>
+      <div class="card-title">{{ paper.title }}</div>
+      <div class="card-meta">by {{ paper.uploader_name }} · {{ paper.year }}</div>
+
+      {% if paper.uploaded_file %}
+        <a href="{{ paper.uploaded_file.url }}" target="_blank" rel="noopener"
+           class="admin-btn"
+           style="background:var(--primary-light); border-color:#D4E4F7; color:var(--primary); margin-top:8px; display:inline-flex; text-decoration:none;">
+          👁 Review file
+        </a>
+      {% endif %}
+
+      <div class="admin-actions">
+        <a href="{% url 'approve_paper' paper.id %}" class="admin-btn approve">✓ Keep</a>
+        <a href="{% url 'reject_paper' paper.id %}" class="admin-btn reject">✗ Reject</a>
+        <a href="{% url 'admin_delete_paper' paper.id %}" class="admin-btn reject"
+           onclick="return confirm('Delete this paper permanently?')">🗑️ Delete</a>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted" style="font-size: 13px;">No papers flagged. 🎉</p>
+  {% endfor %}
+</div>
+
+{# ---------- PENDING ---------- #}
+<div class="mod-panel" id="panel-pending" role="tabpanel">
+  <p class="text-muted" style="font-size:12px; margin-bottom:12px;">
+    New uploads waiting for approval.
+  </p>
+
+  {% for paper in pending %}
+    <div class="card" style="display: block;">
+      <div class="unit-chip">{{ paper.unit_code }}</div>
+      <div class="card-title">{{ paper.title }}</div>
+      <div class="card-meta">by {{ paper.uploader_name }}</div>
+      <div class="card-meta">{{ paper.year }} · {{ paper.get_exam_type_display }} · {{ paper.get_campus_display }}</div>
+
+      {% if paper.uploaded_file %}
+        <a href="{{ paper.uploaded_file.url }}" target="_blank" rel="noopener"
+           class="admin-btn"
+           style="background:var(--primary-light); border-color:#D4E4F7; color:var(--primary); margin-top:8px; display:inline-flex; text-decoration:none;">
+          👁 Review file
+        </a>
+      {% else %}
+        <span class="text-muted" style="font-size:12px; display:block; margin-top:8px;">No file attached</span>
+      {% endif %}
+
+      <div class="admin-actions">
+        <a href="{% url 'approve_paper' paper.id %}" class="admin-btn approve">✓ Accept</a>
+        <a href="{% url 'reject_paper' paper.id %}" class="admin-btn reject">✗ Reject</a>
+        <a href="{% url 'admin_delete_paper' paper.id %}" class="admin-btn reject"
+           onclick="return confirm('Delete permanently?')">🗑️</a>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted" style="font-size: 13px;">Nothing pending. 🎉</p>
+  {% endfor %}
+</div>
+
+{# ---------- REPORTS ---------- #}
+<div class="mod-panel" id="panel-reports" role="tabpanel">
+  <p class="text-muted" style="font-size:12px; margin-bottom:12px;">
+    Latest reports from users. Use the Flagged tab to act on papers with many reports.
+  </p>
+
+  {% for r in reports %}
+    <div class="card" style="display:block;">
+      <div style="display:flex; gap:12px; align-items:flex-start;">
+        <div style="width:36px; height:36px; border-radius:var(--r-md);
+                    background:var(--danger-bg); color:var(--danger);
+                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;">
+            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div style="flex:1; min-width:0;">
+          <a href="{% url 'paper_detail' r.paper.id %}" style="text-decoration:none;">
+            <div style="font-weight:600; font-size:13px; margin-bottom:2px; color:var(--ink);">
+              {{ r.paper.unit_code }} — {{ r.paper.title }}
+            </div>
+          </a>
+          <div class="text-muted" style="font-size:12px; line-height:1.5;">
+            {{ r.reason }} · reported by {{ r.reporter_name }}
+          </div>
+          <div class="text-muted" style="font-size:11px; margin-top:6px;">{{ r.created_at|date:"M d, Y · H:i" }}</div>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted" style="font-size: 13px;">No reports yet.</p>
+  {% endfor %}
+</div>
+
+{# ---------- VERIFIED ---------- #}
+<div class="mod-panel" id="panel-verified" role="tabpanel">
+  <p class="text-muted" style="font-size:12px; margin-bottom:12px;">
+    Papers already approved and live in the archive.
+  </p>
+
+  {% for paper in verified %}
+    <div class="card">
+      <div class="card-left">
+        <div class="unit-chip">{{ paper.unit_code }}</div>
+        <div class="card-title">{{ paper.title }}</div>
+        <div class="card-meta">by {{ paper.uploader_name }} · {{ paper.year }}</div>
+      </div>
+      <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+        {% if paper.uploaded_file %}
+          <a href="{{ paper.uploaded_file.url }}" target="_blank" rel="noopener"
+             class="admin-btn"
+             style="background:var(--primary-light); border-color:#D4E4F7; color:var(--primary); text-decoration:none;">
+            👁
+          </a>
+        {% endif %}
+        <a href="{% url 'reject_paper' paper.id %}"
+           class="admin-btn reject"
+           onclick="return confirm('Reject and remove this verified paper?')"
+           style="text-decoration:none;">✗</a>
+        <a href="{% url 'admin_delete_paper' paper.id %}"
+           class="admin-btn reject"
+           onclick="return confirm('Delete this verified paper permanently?')"
+           style="text-decoration:none;">🗑️</a>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted" style="font-size: 13px;">No verified papers yet.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var tabs = document.querySelectorAll('.mod-tab');
+  var panels = document.querySelectorAll('.mod-panel');
+
+  function activate(name) {
+    tabs.forEach(function (t) {
+      t.classList.toggle('active', t.dataset.tab === name);
+    });
+    panels.forEach(function (p) {
+      p.classList.toggle('active', p.id === 'panel-' + name);
+    });
+    try { history.replaceState(null, '', '#' + name); } catch (e) {}
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { activate(t.dataset.tab); });
+  });
+
+  var hash = (window.location.hash || '').replace('#', '');
+  var valid = ['flagged', 'pending', 'reports', 'verified'];
+  if (valid.indexOf(hash) !== -1) {
+    activate(hash);
+  } else {
+    var flaggedEmpty = document.querySelector('#panel-flagged .card') === null;
+    var pendingEmpty = document.querySelector('#panel-pending .card') === null;
+    var reportsEmpty = document.querySelector('#panel-reports .card') === null;
+    if (!flaggedEmpty)      activate('flagged');
+    else if (!pendingEmpty) activate('pending');
+    else if (!reportsEmpty) activate('reports');
+    else                    activate('verified');
+  }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'Tests/base.html' %}
+
+{% block content %}
+
+<div style="text-align:center; padding: 20px 0 24px;">
+  <div class="avatar" style="width:88px; height:88px; margin: 0 auto 14px; font-size: 32px;">
+    {{ user_initials|default:"G" }}
+  </div>
+  <h1 style="font-size: 20px; font-weight: 700;">{{ user_full_name|default:"Guest User" }}</h1>
+  {% if user_email %}
+    <p class="text-muted" style="font-size: 13px; margin-top: 4px;">{{ user_email }}</p>
+  {% endif %}
+</div>
+
+<div class="stats-row">
+  <div class="stat-block"><div class="num">{{ points }}</div><div class="lbl">Points</div></div>
+  <div class="stat-block"><div class="num">{{ uploads_count }}</div><div class="lbl">Uploads</div></div>
+  <div class="stat-block"><div class="num">{{ badges_count }}</div><div class="lbl">Badges</div></div>
+</div>
+
+<div class="section-title">
+  <span>My uploads</span>
+  <a href="{% url 'upload' %}" class="link">Upload →</a>
+</div>
+
+{% for paper in my_uploads %}
+  <a href="{% url 'paper_detail' paper.id %}" class="card">
+    <div class="card-left">
+      <span class="unit-chip">{{ paper.unit_code }}</span>
+      <div class="card-title">{{ paper.title }}</div>
+    </div>
+    <div class="card-stat">{% if paper.verified %}✓{% else %}⏳{% endif %}</div>
+  </a>
+{% empty %}
+  <div class="empty-state">
+    <div class="icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/>
+      </svg>
+    </div>
+    <h3>No uploads yet</h3>
+    <p>Share your first past paper and earn points.</p>
+    <a href="{% url 'upload' %}" class="btn" style="max-width: 220px; margin: 0 auto;">Upload now</a>
+  </div>
+{% endfor %}
+
+<div class="section-title" style="margin-top: 32px;">
+  <span>Settings</span>
+</div>
+
+{% if is_admin %}
+  <a href="{% url 'admin_queue' %}" class="card" style="border-color:#D4E4F7;">
+    <div class="card-left">
+      <div class="card-title">Moderation console</div>
+      <div class="card-meta">Review, approve, reject, or delete papers</div>
+    </div>
+    <div class="card-stat">→</div>
+  </a>
+{% endif %}
+
+<a href="{% url 'saved_papers' %}" class="card">
+  <div class="card-left">
+    <div class="card-title">Saved papers</div>
+    <div class="card-meta">Your offline reading list</div>
+  </div>
+  <div class="card-stat">→</div>
+</a>
+
+<a href="{% url 'notifications' %}" class="card">
+  <div class="card-left">
+    <div class="card-title">Notifications</div>
+    <div class="card-meta">Your recent alerts</div>
+  </div>
+  <div class="card-stat">→</div>
+</a>
+
+<a href="{% url 'logout' %}" class="card" style="border-color:#FECACA;">
+  <div class="card-left">
+    <div class="card-title" style="color:var(--danger);">Log out</div>
+    <div class="card-meta">Sign out of your account</div>
+  </div>
+</a>
+
+{% endblock %}

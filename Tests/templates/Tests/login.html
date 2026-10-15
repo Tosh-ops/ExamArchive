@@ -1,0 +1,40 @@
+{% extends 'Tests/base.html' %}
+{% block navbar %}{% endblock %}
+{% block bottomnav %}{% endblock %}
+
+{% block content %}
+<div class="header-blue" style="margin-top: 0; border-radius: 0 0 32px 32px;">
+  <div style="text-align:center; padding-top: 20px;">
+    <div class="logo-box" style="margin: 0 auto 20px; width: 56px; height: 56px; font-size: 24px;">E</div>
+  </div>
+</div>
+
+<div style="background:var(--surface); margin: -20px 0 0; border-radius: 24px; padding: 24px; text-align:center;">
+  <h2 style="font-size: 22px; margin-bottom: 4px;">Login</h2>
+  <p class="text-muted" style="font-size:13px; margin-bottom: 20px;">Sign in to continue</p>
+
+  <form method="post" style="text-align: left;">
+    {% csrf_token %}
+    <div class="form-group">
+      <label>Your name</label>
+      <input type="text" name="name" placeholder="Jane Wanjiru" required>
+    </div>
+    <div class="form-group">
+      <label>Phone / Email</label>
+      <input type="text" name="contact" placeholder="+254 712 345 678 or jane@example.com" required>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="••••••••" required>
+    </div>
+    <button type="submit" class="btn">Log in</button>
+  </form>
+
+  <p class="text-muted" style="font-size:12px; margin-top: 12px;">
+    Forgot password? <a href="{% url 'otp' %}" style="color:var(--primary); font-weight:600;">Reset</a>
+  </p>
+  <p class="text-muted" style="font-size:12px; margin-top: 16px;">
+    No account? <a href="{% url 'register' %}" style="color:var(--primary); font-weight:600;">Register</a>
+  </p>
+</div>
+{% endblock %}

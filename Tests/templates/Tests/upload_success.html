@@ -1,0 +1,12 @@
+{% extends 'Tests/base.html' %}
+
+{% block content %}
+<div class="text-center" style="padding-top: 60px;">
+  <div class="big-icon success">✓</div>
+  <h2 style="font-size: 22px; margin-top: 12px;">Submitted!</h2>
+  <p class="text-muted" style="font-size: 13px; margin-top: 6px;">Your paper is now pending verification</p>
+
+  <a href="{% url 'upload' %}" class="btn" style="margin-top: 30px;">Upload another</a>
+  <a href="{% url 'home' %}" class="btn btn-outline">Go to home</a>
+</div>
+{% endblock %}

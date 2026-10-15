@@ -1,0 +1,181 @@
+{% extends 'Tests/base.html' %}
+
+{% block content %}
+
+<form method="get" class="search-bar" style="margin-top: 8px;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+  </svg>
+  <input type="text" name="q" value="{{ query }}" placeholder="Search unit code, course, or year" autofocus>
+</form>
+
+<div style="display:flex; gap:8px; align-items:center; margin-bottom: 12px;">
+  <button type="button" onclick="toggleFilters()" class="chip" id="filter-toggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;">
+      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+    </svg>
+    Filters
+    {% if has_filters %}•{% endif %}
+  </button>
+
+  {% if has_filters %}
+    <a href="{% url 'search' %}?q={{ query }}" class="chip" style="background:var(--danger-bg); color:var(--danger); border-color:#FECACA;">
+      Clear
+    </a>
+  {% endif %}
+</div>
+
+<div id="filter-panel" style="display:none; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 16px;">
+  <form method="get">
+    <input type="hidden" name="q" value="{{ query }}">
+
+    <div class="form-group">
+      <label>University</label>
+      <select name="university" id="university-select">
+        <option value="">All universities</option>
+        {% for value, label in universities %}
+          <option value="{{ value }}" {% if selected_university == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Campus</label>
+      <select name="campus" id="campus-select">
+        <option value="">All campuses</option>
+        {% for value, label in campuses %}
+          <option value="{{ value }}" {% if selected_campus == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Year</label>
+      <select name="year">
+        <option value="">All years</option>
+        {% for y in years %}
+          <option value="{{ y }}" {% if selected_year == y|stringformat:"s" %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Exam type</label>
+      <select name="exam_type">
+        <option value="">All types</option>
+        {% for value, label in exam_types %}
+          <option value="{{ value }}" {% if selected_exam_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" name="verified" value="1" {% if verified_only == '1' %}checked{% endif %} style="width:auto;">
+        <span style="text-transform:none; font-size:13px; color:var(--ink); font-weight:500;">Verified papers only</span>
+      </label>
+    </div>
+
+    <button type="submit" class="btn" style="width:100%;">Apply filters</button>
+  </form>
+</div>
+
+<p class="text-muted" style="font-size: 13px; margin-bottom: 12px;">
+  {{ result_count }} result{{ result_count|pluralize }}{% if query %} for "{{ query }}"{% endif %}
+</p>
+
+{% for paper in results %}
+  <a href="{% url 'paper_detail' paper.id %}" class="card">
+    <div class="card-left">
+      <span class="unit-chip">{{ paper.unit_code }}</span>
+      <div class="card-title">{{ paper.title }}</div>
+      <div class="card-meta">
+        <span>{{ paper.year }}</span>
+        <span style="color:var(--ink-faint);">·</span>
+        <span>{{ paper.get_exam_type_display }}</span>
+        {% if paper.verified %}
+          <span style="color:var(--success);">✓</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card-stat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <path d="M7 10l5 5 5-5"/><path d="M12 15V3"/>
+      </svg>
+      {{ paper.downloads }}
+    </div>
+  </a>
+{% empty %}
+  <div class="empty-state">
+    <div class="icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+      </svg>
+    </div>
+    <h3>No papers found</h3>
+    <p>Try adjusting your search or filters.</p>
+    <a href="{% url 'upload' %}" class="btn" style="max-width: 220px; margin: 0 auto;">Upload this paper</a>
+  </div>
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleFilters() {
+  const panel = document.getElementById('filter-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+const UNIVERSITY_CAMPUSES = {
+  'uon': [['main','Main Campus'],['kikuyu','Kikuyu Campus'],['chiromo','Chiromo Campus'],['lower_kabete','Lower Kabete Campus'],['parklands','Parklands Campus'],['kisumu','Kisumu Campus']],
+  'ku': [['main','Main Campus (Thika)'],['ruiru','Ruiru Campus'],['parklands','Parklands Campus'],['city','City Campus'],['kericho','Kericho Campus'],['nakuru','Nakuru Campus']],
+  'strathmore': [['main','Main Campus (Madaraka)'],['cbd','CBD Campus']],
+  'jkuat': [['main','Main Campus (Juja)'],['nairobi','Nairobi CBD Campus'],['karen','Karen Campus'],['mombasa','Mombasa Campus'],['kisii','Kisii Campus']],
+  'moi': [['main','Main Campus (Eldoret)'],['town','Town Campus'],['nairobi','Nairobi Campus']],
+  'egerton': [['main','Main Campus (Njoro)'],['nakuru','Nakuru Campus'],['njoro','Njoro Campus']],
+  'maseno': [['main','Main Campus'],['kisumu','Kisumu Campus']],
+  'tuk': [['main','Main Campus'],['cbd','CBD Campus']],
+  'mmu': [['main','Main Campus']],
+  'daystar': [['athi_river','Athi River Campus'],['nairobi','Nairobi Campus']],
+  'usiu': [['main','Main Campus']],
+  'cuea': [['main','Main Campus'],['karen','Karen Campus']],
+  'anu': [['main','Main Campus']],
+  'mku': [['main','Main Campus (Thika)'],['nairobi','Nairobi Campus'],['mombasa','Mombasa Campus']],
+  'zetech': [['main','Main Campus']],
+  'riara': [['main','Main Campus']],
+  'other': [['main','Main Campus'],['other','Other']],
+};
+
+function updateCampuses(uniCode) {
+  const campusSelect = document.getElementById('campus-select');
+  if (!campusSelect) return;
+  campusSelect.innerHTML = '';
+  if (!uniCode) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'All campuses';
+    campusSelect.appendChild(opt);
+    return;
+  }
+  const campuses = UNIVERSITY_CAMPUSES[uniCode] || [['','All campuses']];
+  campuses.forEach(function (pair) {
+    const opt = document.createElement('option');
+    opt.value = pair[0];
+    opt.textContent = pair[1];
+    campusSelect.appendChild(opt);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const uniSelect = document.getElementById('university-select');
+  if (uniSelect) {
+    uniSelect.addEventListener('change', function () {
+      updateCampuses(this.value);
+    });
+    updateCampuses(uniSelect.value);
+  }
+});
+</script>
+{% endblock %}

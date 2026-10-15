@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exam Archive — Every paper. One archive.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'Tests/css/style.css' %}">
+</head>
+<body>
+
+<div class="landing">
+  <div class="landing-header">
+    <div class="logo-mark">
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="28" height="28" rx="8" fill="#1565C0"/>
+        <path d="M9 8h10M9 13h10M9 18h6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="logo-text">Exam Archive</span>
+  </div>
+
+  <div class="landing-hero">
+    <h1>
+      Every past paper.<br>
+      <span class="accent">One archive.</span>
+    </h1>
+    <p>Free, campus-verified past exam papers — built by students, for students.</p>
+
+    <div class="landing-cta">
+      <a href="{% url 'register' %}" class="btn">
+        Get started
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="{% url 'login' %}" class="btn btn-outline">I have an account</a>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+        </svg>
+      </div>
+      <h3>All papers, one place</h3>
+      <p>Search by unit, course, or year.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+      </div>
+      <h3>Campus-verified</h3>
+      <p>Peer-reviewed for authenticity.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+          <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+          <line x1="12" y1="20" x2="12.01" y2="20"/>
+        </svg>
+      </div>
+      <h3>Works offline</h3>
+      <p>Download and study anywhere.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="6"/>
+          <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+        </svg>
+      </div>
+      <h3>Earn badges</h3>
+      <p>Get rewarded for contributing.</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

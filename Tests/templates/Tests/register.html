@@ -1,0 +1,137 @@
+{% extends 'Tests/base.html' %}
+{% block navbar %}{% endblock %}
+{% block bottomnav %}{% endblock %}
+
+{% block content %}
+<div class="header-blue" style="margin-top: 0; border-radius: 0 0 32px 32px;">
+  <h1>Create account</h1>
+  <p>Join the archive today</p>
+</div>
+
+{% if error %}
+  <div class="info-banner" style="background:var(--danger-bg); border-color:#FECACA; color:var(--danger);">
+    <span>{{ error }}</span>
+  </div>
+{% endif %}
+
+<form method="post" style="padding: 10px 0;">
+  {% csrf_token %}
+
+  <div class="form-group">
+    <label>Full name *</label>
+    <input type="text" name="name" placeholder="Jane Wanjiru" required>
+  </div>
+
+  <div class="form-group">
+    <label>Phone / Email *</label>
+    <input type="text" name="contact" placeholder="+254 712 345 678 or jane@example.com" required>
+  </div>
+
+  <div class="form-group">
+    <label>Password *</label>
+    <input type="password" name="password" placeholder="••••••••" required>
+  </div>
+
+  <div class="form-group">
+    <label>University *</label>
+    <div class="custom-select" id="uni-select" onclick="toggleDropdown()">
+      <span id="uni-label" style="color: var(--ink-faint);">Select your university</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </div>
+    <input type="hidden" name="university" id="uni-value" required>
+
+    <div class="custom-dropdown" id="uni-dropdown" style="display:none;">
+      <div class="dropdown-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input type="text" placeholder="Search universities..." oninput="filterUniversities(this.value)" onclick="event.stopPropagation()">
+      </div>
+      <div class="dropdown-list" id="uni-list">
+        {% for value, label in universities %}
+          <div class="dropdown-item" data-value="{{ value }}" onclick="selectUni('{{ value }}', '{{ label|escapejs }}', event)">
+            <div class="uni-icon">{{ label|slice:":1" }}</div>
+            <span>{{ label }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <button type="submit" class="btn">Create account</button>
+</form>
+
+<p class="text-center text-muted" style="font-size:13px; margin-top: 20px;">
+  Already have an account? <a href="{% url 'login' %}" style="color:var(--primary); font-weight:500;">Log in</a>
+</p>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.custom-select {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 11px 14px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--r-md);
+  cursor: pointer; font-size: 14px; transition: all 0.15s ease;
+}
+.custom-select:hover { border-color: var(--border-strong); }
+.custom-dropdown {
+  position: absolute; z-index: 50; margin-top: 6px;
+  width: calc(100% - 40px); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg); max-height: 320px;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.dropdown-search {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+}
+.dropdown-search svg { width: 14px; height: 14px; color: var(--ink-muted); }
+.dropdown-search input { border: none; outline: none; flex: 1; font-size: 13px; font-family: inherit; background: transparent; }
+.dropdown-list { overflow-y: auto; max-height: 260px; }
+.dropdown-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; cursor: pointer; font-size: 13px;
+  transition: background 0.1s ease;
+}
+.dropdown-item:hover { background: var(--bg); }
+.dropdown-item.hidden { display: none; }
+.uni-icon {
+  width: 26px; height: 26px; border-radius: var(--r-sm);
+  background: var(--primary-light); color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 12px; flex-shrink: 0;
+}
+</style>
+
+<script>
+function toggleDropdown() {
+  const dd = document.getElementById('uni-dropdown');
+  dd.style.display = dd.style.display === 'none' ? 'flex' : 'none';
+}
+function selectUni(value, label, event) {
+  event.stopPropagation();
+  document.getElementById('uni-value').value = value;
+  const lbl = document.getElementById('uni-label');
+  lbl.textContent = label;
+  lbl.style.color = 'var(--ink)';
+  document.getElementById('uni-dropdown').style.display = 'none';
+}
+function filterUniversities(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('.dropdown-item').forEach(function (item) {
+    const text = item.textContent.toLowerCase();
+    item.classList.toggle('hidden', !text.includes(q));
+  });
+}
+document.addEventListener('click', function (e) {
+  const select = document.getElementById('uni-select');
+  const dd = document.getElementById('uni-dropdown');
+  if (select && !select.contains(e.target) && dd && !dd.contains(e.target)) {
+    dd.style.display = 'none';
+  }
+});
+</script>
+{% endblock %}

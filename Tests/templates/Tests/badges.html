@@ -1,0 +1,30 @@
+{% extends 'Tests/base.html' %}
+
+{% block content %}
+
+<div style="display:flex; align-items:center; gap:12px; margin: 8px 0 20px;">
+  <a href="{% url 'home' %}" class="icon-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+  </a>
+  <h1 style="font-size: 20px; font-weight: 700;">Your badges</h1>
+</div>
+
+<p class="text-muted" style="font-size: 13px; margin-bottom: 16px;">
+  {{ earned_count }} of {{ total_count }} earned
+</p>
+
+<div class="badge-grid">
+  {% for badge in badges %}
+    <div class="badge-card {% if not badge.earned %}locked{% endif %}">
+      <div class="emoji">{{ badge.icon }}</div>
+      <div class="name">{{ badge.name }}</div>
+      <div class="desc">{{ badge.description }}</div>
+    </div>
+  {% empty %}
+    <p class="text-muted">No badges configured.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}
